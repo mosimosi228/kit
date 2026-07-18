@@ -5,7 +5,9 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"gopkg.in/yaml.v3"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
 
@@ -115,4 +117,13 @@ func GenerateJWTSecret() (string, error) {
 
 	// Convert the raw bytes into a readable hex string
 	return hex.EncodeToString(bytes), nil
+}
+
+func LoadYAML[T interface{}](path string, dest T) error {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+
+	return yaml.Unmarshal(data, dest)
 }
