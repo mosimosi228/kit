@@ -5,6 +5,7 @@ Reusable Go packages for services.
 | Package | Import |
 |---------|--------|
 | auth | `github.com/mosimosi228/kit/auth` |
+| blob | `github.com/mosimosi228/kit/blob` |
 | cache | `github.com/mosimosi228/kit/cache` |
 | eventbus | `github.com/mosimosi228/kit/eventbus` |
 | hmac | `github.com/mosimosi228/kit/hmac` |
