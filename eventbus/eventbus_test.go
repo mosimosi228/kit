@@ -40,6 +40,19 @@ func TestMessageJSON(t *testing.T) {
 	}
 }
 
+func TestPublishRemoteSkipsLocalDispatch(t *testing.T) {
+	b := &Bus{handlers: map[string]func(Message){}, subject: "eventbus.>"}
+	called := false
+	b.RegisterHandler("source_ingest", func(Message) { called = true })
+	err := b.PublishRemote(t.Context(), Message{Entity: "source_ingest", EntityID: "1"})
+	if err == nil {
+		t.Fatal("expected jetstream error")
+	}
+	if called {
+		t.Fatal("PublishRemote must not dispatch locally")
+	}
+}
+
 func TestLocalDispatch(t *testing.T) {
 	b := &Bus{handlers: map[string]func(Message){}}
 	var saw string

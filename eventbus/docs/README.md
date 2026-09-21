@@ -14,6 +14,7 @@ Publish entity events and invalidate local state on every node. Same flow as ade
 |----------|-------------|
 | `Open(ctx, Options)` | connect, ensure stream, start durable pull consumer |
 | `(*Bus).Publish` | local handler + JetStream |
+| `(*Bus).PublishRemote` | JetStream only, no local handler (jobs) |
 | `(*Bus).RegisterHandler` | `entity` → callback |
 | `(*Bus).Close` | stop worker, drain |
 
@@ -32,7 +33,10 @@ bus.RegisterHandler("user", func(msg eventbus.Message) {
 })
 
 _ = bus.Publish(ctx, eventbus.Message{Entity: "user", EntityID: id})
+_ = bus.PublishRemote(ctx, eventbus.Message{Entity: "source_ingest", EntityID: runID})
 ```
+
+`PublishRemote` is for work that must run once on a consumer (ingest). `Publish` still does local dispatch first, then JetStream.
 
 `Consumer` is required and must be unique per process/node. A shared durable consumer load-balances messages so other nodes keep stale cache.
 

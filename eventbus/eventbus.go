@@ -211,10 +211,22 @@ func (b *Bus) Publish(ctx context.Context, msg Message) error {
 			slog.Any("err", err),
 		)
 	}
+	return b.publishJS(msg)
+}
 
+// PublishRemote publishes to JetStream only. It does not run local handlers.
+func (b *Bus) PublishRemote(ctx context.Context, msg Message) error {
+	_ = ctx
+	return b.publishJS(msg)
+}
+
+func (b *Bus) publishJS(msg Message) error {
 	data, err := json.Marshal(msg)
 	if err != nil {
 		return fmt.Errorf("eventbus: marshal: %w", err)
+	}
+	if b == nil || b.js == nil {
+		return fmt.Errorf("eventbus: jetstream is not connected")
 	}
 	subj := publishSubject(b.subject, msg.Entity)
 	if _, err := b.js.Publish(subj, data); err != nil {
