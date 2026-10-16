@@ -68,6 +68,24 @@ func TestGetSafeQueryBindsRouteParam(t *testing.T) {
 	}
 }
 
+func TestGetSafeQueryBindsUUIDParam(t *testing.T) {
+	id := uuid.New()
+	req := httptest.NewRequest("GET", "/projects/"+id.String(), nil)
+	rctx := chi.NewRouteContext()
+	rctx.URLParams.Add("id", id.String())
+	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+
+	var dst struct {
+		ID uuid.UUID `param:"id" validate:"required"`
+	}
+	if err := GetSafeQuery(&dst)(req); err != nil {
+		t.Fatalf("GetSafeQuery() error = %v", err)
+	}
+	if dst.ID != id {
+		t.Fatalf("ID = %s, want %s", dst.ID, id)
+	}
+}
+
 func TestGetSafeQueryInvalidDestinationPanics(t *testing.T) {
 	defer func() {
 		if recover() == nil {

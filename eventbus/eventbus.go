@@ -214,6 +214,23 @@ func (b *Bus) Publish(ctx context.Context, msg Message) error {
 	return b.publishJS(msg)
 }
 
+// Outstanding is the number of messages this consumer has not acked yet.
+// Zero means the worker has no backlog and nothing in flight on the bus.
+func (b *Bus) Outstanding() (int, error) {
+	if b == nil || b.sub == nil {
+		return 0, nil
+	}
+	info, err := b.sub.ConsumerInfo()
+	if err != nil {
+		return 0, fmt.Errorf("eventbus: consumer info: %w", err)
+	}
+	n := int(info.NumPending) + info.NumAckPending
+	if n < 0 {
+		return 0, nil
+	}
+	return n, nil
+}
+
 // PublishRemote publishes to JetStream only. It does not run local handlers.
 func (b *Bus) PublishRemote(ctx context.Context, msg Message) error {
 	_ = ctx

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"net/http"
 	"net/url"
 	"strings"
 	"time"
@@ -78,6 +79,44 @@ func (c *Client) Put(ctx context.Context, key string, r io.Reader, size int64, c
 		return fmt.Errorf("blob: put %s: %w", key, err)
 	}
 	return nil
+}
+
+func (c *Client) Open(ctx context.Context, key string) (io.ReadCloser, error) {
+	if c == nil || c.mc == nil {
+		return nil, fmt.Errorf("blob: client is not open")
+	}
+	key = strings.TrimPrefix(key, "/")
+	if key == "" {
+		return nil, fmt.Errorf("blob: key is required")
+	}
+	obj, err := c.mc.GetObject(ctx, c.bucket, key, minio.GetObjectOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("blob: get %s: %w", key, err)
+	}
+	if _, err := obj.Stat(); err != nil {
+		_ = obj.Close()
+		return nil, fmt.Errorf("blob: get %s: %w", key, err)
+	}
+	return obj, nil
+}
+
+func (c *Client) Exists(ctx context.Context, key string) (bool, error) {
+	if c == nil || c.mc == nil {
+		return false, fmt.Errorf("blob: client is not open")
+	}
+	key = strings.TrimPrefix(key, "/")
+	if key == "" {
+		return false, fmt.Errorf("blob: key is required")
+	}
+	_, err := c.mc.StatObject(ctx, c.bucket, key, minio.StatObjectOptions{})
+	if err == nil {
+		return true, nil
+	}
+	resp := minio.ToErrorResponse(err)
+	if resp.Code == "NoSuchKey" || resp.Code == "NoSuchObject" || resp.StatusCode == http.StatusNotFound {
+		return false, nil
+	}
+	return false, fmt.Errorf("blob: stat %s: %w", key, err)
 }
 
 func (c *Client) Delete(ctx context.Context, key string) error {

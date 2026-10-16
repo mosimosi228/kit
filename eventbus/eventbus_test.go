@@ -5,6 +5,18 @@ import (
 	"testing"
 )
 
+func TestOutstandingNil(t *testing.T) {
+	var b *Bus
+	n, err := b.Outstanding()
+	if err != nil || n != 0 {
+		t.Fatalf("nil bus outstanding = %d %v", n, err)
+	}
+	n, err = (&Bus{}).Outstanding()
+	if err != nil || n != 0 {
+		t.Fatalf("empty bus outstanding = %d %v", n, err)
+	}
+}
+
 func TestOpenRequiresURLAndConsumer(t *testing.T) {
 	if _, err := Open(t.Context(), Options{Consumer: "c"}); err == nil {
 		t.Fatal("expected url error")

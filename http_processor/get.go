@@ -156,6 +156,23 @@ func setField(field reflect.Value, values []string) error {
 
 	val := values[0]
 
+	if field.Type() == reflect.TypeOf(pgtype.UUID{}) {
+		var u pgtype.UUID
+		if err := u.Scan(val); err != nil {
+			return fmt.Errorf("invalid UUID: %w", err)
+		}
+		field.Set(reflect.ValueOf(u))
+		return nil
+	}
+	if field.Type() == reflect.TypeOf(uuid.UUID{}) {
+		var u uuid.UUID
+		if err := u.Scan(val); err != nil {
+			return fmt.Errorf("invalid UUID: %w", err)
+		}
+		field.Set(reflect.ValueOf(u))
+		return nil
+	}
+
 	switch field.Kind() {
 	case reflect.String:
 		field.SetString(val)
@@ -188,24 +205,6 @@ func setField(field reflect.Value, values []string) error {
 			field.Set(reflect.New(field.Type().Elem()))
 		}
 		return setField(field.Elem(), values)
-	case reflect.Struct:
-		if field.Type() == reflect.TypeOf(pgtype.UUID{}) {
-			var u pgtype.UUID
-			if err := u.Scan(val); err != nil {
-				return fmt.Errorf("invalid UUID: %w", err)
-			}
-			field.Set(reflect.ValueOf(u))
-			return nil
-		}
-		if field.Type() == reflect.TypeOf(uuid.UUID{}) {
-			var u uuid.UUID
-			if err := u.Scan(val); err != nil {
-				return fmt.Errorf("invalid UUID: %w", err)
-			}
-			field.Set(reflect.ValueOf(u))
-			return nil
-		}
-		fallthrough
 	default:
 		return fmt.Errorf("unsupported field type %s", field.Type())
 	}

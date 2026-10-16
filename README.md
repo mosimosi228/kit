@@ -8,6 +8,7 @@ Reusable Go packages for services.
 | blob | `github.com/mosimosi228/kit/blob` |
 | cache | `github.com/mosimosi228/kit/cache` |
 | eventbus | `github.com/mosimosi228/kit/eventbus` |
+| eventbuslocal | `github.com/mosimosi228/kit/eventbuslocal` |
 | hmac | `github.com/mosimosi228/kit/hmac` |
 | http_processor | `github.com/mosimosi228/kit/http_processor` |
 | logger | `github.com/mosimosi228/kit/logger` |
