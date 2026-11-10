@@ -11,6 +11,7 @@ Reusable Go packages for services.
 | eventbuslocal | `github.com/mosimosi228/kit/eventbuslocal` |
 | hmac | `github.com/mosimosi228/kit/hmac` |
 | http_processor | `github.com/mosimosi228/kit/http_processor` |
+| iam | `github.com/mosimosi228/kit/iam` |
 | logger | `github.com/mosimosi228/kit/logger` |
 | postgres | `github.com/mosimosi228/kit/postgres` |
 | redis | `github.com/mosimosi228/kit/redis` |
