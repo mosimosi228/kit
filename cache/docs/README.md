@@ -23,7 +23,7 @@ hits, misses, drops := c.Metrics()
 |--------|-------------|
 | `Set(key, value, ttl)` | write with TTL (`Wait` after set) |
 | `Get` / `Del` / `Clear` / `Close` | read / delete / reset / shutdown |
-| `GetOrLoad(key, ttl, load)` | cache-aside: hit from cache, otherwise `load` + `Set` |
+| `GetOrLoad(key, ttl, load)` | cache-aside (`singleflight`): hit from cache, otherwise single `load` + `Set` |
 | `Metrics` | hits, misses, drops |
 
 ```go
@@ -50,7 +50,7 @@ v, err := lru.GetOrLoad("a", func() (string, error) {
 
 - Capacity ≤ 0 → default `1000`.
 - `Get` on hit moves the entry to the front (LRU order).
-- `GetOrLoad` — cache-aside without TTL.
+- `GetOrLoad` — cache-aside without TTL (`singleflight` deduplicates concurrent misses).
 
 ## When to use which
 
